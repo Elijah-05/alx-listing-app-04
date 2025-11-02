@@ -7,7 +7,7 @@ const Pill: React.FC<PillProps> = ({ label, active, onClick, className }) => {
     <button
       type="button"
       className={cn(
-        "rounded-full cursor-pointer bg-white border text-black border-[#E9E9E9] py-3 px-6 flex items-center justify-center",
+        "rounded-full shrink-0 cursor-pointer bg-white border text-black border-[#E9E9E9] py-3 px-6 flex items-center justify-center",
         {
           "border-[#34967C] text-[#34967C]": active,
         },

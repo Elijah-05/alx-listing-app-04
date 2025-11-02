@@ -3,7 +3,7 @@ import Pill from "@/components/common/Pill";
 import CategoryIcons from "@/components/layout/CategoryIcons";
 import { CATEGORYICONS, PROPERTYLISTINGSAMPLE } from "@/constants";
 import { Geist, Geist_Mono } from "next/font/google";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,16 +27,27 @@ const filterOptions = [
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
 
+  const filterList = useCallback(() => {
+    return PROPERTYLISTINGSAMPLE.filter((prop) => {
+      if (activeFilter === "All") {
+        return true;
+      } else prop.category.includes(activeFilter);
+    });
+  }, [activeFilter]);
+
   return (
     <div className={`${geistSans.className} ${geistMono.className} `}>
-       <div className="max-sm:hidden sticky -top-10 max-w-[1500px] mx-auto flex items-center justify-between lg:px-0 overflow-x-auto gap-8 py-4 px-4">
-        {
-            CATEGORYICONS.map((item, index) => (
-                <CategoryIcons key={index} icon={item.icon} label={item.label} active={index === 3} />
-            ))
-        }
+      <div className="max-sm:hidden sticky -top-10 max-w-[1500px] mx-auto flex items-center justify-between lg:px-0 overflow-x-auto gap-8 py-4 px-4">
+        {CATEGORYICONS.map((item, index) => (
+          <CategoryIcons
+            key={index}
+            icon={item.icon}
+            label={item.label}
+            active={index === 3}
+          />
+        ))}
       </div>
-      <div className="container mx-auto px-0">
+      <div className="max-w-[1500px] mx-auto px-0">
         {/* Hero Banner */}
         <div
           style={{
@@ -44,32 +55,35 @@ export default function Home() {
           }}
           className="h-[min(calc(100vh-350px),550px)] w-full rounded-3xl bg-cover bg-center flex flex-col items-center justify-center text-white gap-4"
         >
-          <h1 className="font-semibold max-w-[867px] leading-28 text-7xl text-center drop-shadow-2xl">
+          <h1 className="font-semibold max-w-[min(867px,80%)] xl:leading-28 text-3xl sm:text-4xl md:text-5xl xl:text-7xl text-center drop-shadow-2xl">
             Find your favorite place here!
           </h1>
-          <p className="text-2xl text-center">
+          <p className="max-w-[min(700px,70%)] sm:text-lg md:text-xl lg:text-2xl text-center">
             The best prices for over 2 million properties worldwide
           </p>
         </div>
 
-        <div className="flex items-center mt-10 mb-6 gap-4">
-          {filterOptions.map((option, index) => (
-            <Pill
-              {...option}
-              active={activeFilter === option.label}
-              onClick={setActiveFilter}
-            />
-          ))}
-        </div>
-
-        <div className="grid grid-cols-4 gap-x-5 gap-y-6">
-          {PROPERTYLISTINGSAMPLE.filter((prop => {
-            if(activeFilter === 'All') {
-              return true
-            } else prop.category.includes(activeFilter)
-          })).map((property, index) => {
-            return <Card {...property} key={index} />;
-          })}
+        <div className="px-4">
+          <div className="flex items-center overflow-x-scroll mt-10 mb-6 gap-4 pb-3">
+            {filterOptions.map((option) => (
+              <Pill
+                key={option.label}
+                {...option}
+                active={activeFilter === option.label}
+                onClick={setActiveFilter}
+              />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-5 gap-y-6">
+            {filterList().map((property, index) => {
+              return <Card {...property} key={index} />;
+            })}
+          </div>
+          {filterList().length === 0 && (
+            <p className="text-center text-gray-500 mt-10">
+              No properties found for &quot;{activeFilter}&quot;.
+            </p>
+          )}
         </div>
       </div>
     </div>

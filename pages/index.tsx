@@ -2,8 +2,9 @@ import Card from "@/components/common/Card";
 import Pill from "@/components/common/Pill";
 import CategoryIcons from "@/components/layout/CategoryIcons";
 import { CATEGORYICONS, PROPERTYLISTINGSAMPLE } from "@/constants";
+import axios from "axios";
 import { Geist, Geist_Mono } from "next/font/google";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,8 @@ const filterOptions = [
 
 export default function Home() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
+  const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const filterList = useCallback(() => {
     return PROPERTYLISTINGSAMPLE.filter((prop) => {
@@ -34,6 +37,25 @@ export default function Home() {
       } else prop.category.includes(activeFilter);
     });
   }, [activeFilter]);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const response = await axios.get("/api/properties");
+        setProperties(response.data);
+      } catch (error) {
+        console.error("Error fetching properties:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div className={`${geistSans.className} ${geistMono.className} `}>
